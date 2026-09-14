@@ -80,6 +80,12 @@ Retour au calme
 intervals.icu en déduit la durée et la distance planifiées, et peut pousser la séance vers une montre (Garmin,
 Coros, etc.) si la synchronisation est activée.
 
+## Application Wear OS
+
+Le dossier [`wear/`](wear/README.md) contient une application Galaxy Watch (Kotlin, Compose pour Wear OS) : un
+bouton qui lance une course dans Samsung Health avec l'objectif de la séance en rappel, et un écran d'exploration
+des points d'entrée de Samsung Health. Voir son README pour compiler et installer sur la montre.
+
 ## Structure
 
 ```
