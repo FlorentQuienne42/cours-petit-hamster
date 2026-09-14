@@ -1,0 +1,17 @@
+{
+  "name": "cours-petit-hamster",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Générateur de programme d'entraînement course à pied (10 km, semi, marathon) avec export vers intervals.icu",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite --open",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}
