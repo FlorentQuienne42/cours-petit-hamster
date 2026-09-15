@@ -2,7 +2,8 @@
 
 Petite application web (JavaScript vanilla, sans backend) qui génère un programme d'entraînement de course à pied
 (10 km, semi-marathon, marathon) à partir de la date de la course, de l'objectif de temps et des jours disponibles,
-puis l'exporte comme séances structurées dans le calendrier [intervals.icu](https://intervals.icu).
+puis l'exporte comme séances structurées dans le calendrier [intervals.icu](https://intervals.icu) ou en fichiers
+`.fit` à copier directement sur la montre.
 
 ## Démarrage
 
@@ -35,9 +36,12 @@ sont pas chargés. Passe toujours par `demarrer.bat` ou `npm start`.
    *Footing* ou *Sortie longue* (exactement une sortie longue, au plus deux jours de qualité).
 2. **Programme** : affiché semaine par semaine avec, pour chaque séance, la description « à la Runna » et le texte
    structuré tel qu'il sera envoyé à intervals.icu.
-3. **Export** : après confirmation, les séances sont créées en une requête (`POST /events/bulk?upsert=true`). Par
-   défaut, les séances déjà créées par l'application sur la période sont d'abord supprimées, pour éviter les
-   doublons si tu régénères le plan avec d'autres jours. Un bouton permet aussi de tout retirer.
+3. **Fichiers `.fit`** : chaque séance peut être téléchargée au format FIT (bouton *⌚ Fichier .fit* sous la
+   séance), ou tout le programme en une archive ZIP. Voir plus bas.
+4. **Export intervals.icu** : après confirmation, les séances sont créées en une requête
+   (`POST /events/bulk?upsert=true`). Par défaut, les séances déjà créées par l'application sur la période sont
+   d'abord supprimées, pour éviter les doublons si tu régénères le plan avec d'autres jours. Un bouton permet aussi
+   de tout retirer.
 
 ## Méthode d'entraînement
 
@@ -80,6 +84,26 @@ Retour au calme
 intervals.icu en déduit la durée et la distance planifiées, et peut pousser la séance vers une montre (Garmin,
 Coros, etc.) si la synchronisation est activée.
 
+## Fichiers .fit
+
+Le même programme peut être téléchargé au format **FIT** (`workout`), le format des séances structurées des montres
+Garmin, Coros ou Suunto : un fichier par séance (`2026-11-15-tempo-sur-4-km.fit`), ou une archive ZIP de tout le
+programme. Les fichiers sont fabriqués dans le navigateur, sans dépendance ([`src/fit.js`](src/fit.js) encode le
+FIT, [`src/zip.js`](src/zip.js) l'archive) : rien n'est envoyé nulle part.
+
+Chaque fichier contient un message `file_id` (type *workout*), un message `workout` (sport *running*, nom
+« 15/11 Tempo sur 4 km ») et un message `workout_step` par étape : durée en distance ou en temps, allure cible en
+fourchette (`custom_target_speed_low/high`), intensité (échauffement, actif, récupération, retour au calme) et
+étapes de répétition (`repeat_until_steps_cmplt`) pour les séries. La course devient une étape unique sur la
+distance, à l'allure objectif.
+
+Pour les installer :
+
+- **Garmin** : brancher la montre en USB et copier les fichiers dans `GARMIN/NewFiles`, puis débrancher — les
+  séances apparaissent dans *Entraînement → Séances*. Sinon, les importer dans Garmin Connect (*Entraînement →
+  Séances → Importer*) ou dans intervals.icu, qui les enverra à la montre.
+- **Coros / Suunto** : importer les fichiers depuis l'application ou le site du constructeur.
+
 ## Application Wear OS
 
 Le dossier [`wear/`](wear/README.md) contient une application Galaxy Watch (Kotlin, Compose pour Wear OS) : un
@@ -95,6 +119,9 @@ src/plan.js         périodisation et calendrier
 src/workouts.js     modèles de séances + format texte intervals.icu
 src/paces.js        VDOT et allures d'entraînement
 src/intervals.js    client API intervals.icu
+src/fit.js          encodeur de fichiers FIT (séances structurées)
+src/zip.js          archive ZIP minimale (fichiers stockés)
+src/download.js     téléchargement d'un fichier généré
 src/render.js       rendu DOM
 src/format.js       formatage et dates
 test/               tests (node --test)

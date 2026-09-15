@@ -564,6 +564,25 @@ button.danger {
   line-height: 1.5;
 }
 
+.session-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+button.mini {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+button.mini:hover:not(:disabled) {
+  color: var(--ink);
+}
+
 /* --- Export ------------------------------------------------------------ */
 
 .confirm {
@@ -594,6 +613,17 @@ button.danger {
 .status.err {
   background: var(--intervals-soft);
   color: #7a1f32;
+}
+
+.how-to {
+  margin-top: 1.25rem;
+  font-size: 0.95rem;
+}
+
+.how-to summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
 }
 
 .danger-zone {

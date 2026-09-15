@@ -4,6 +4,9 @@ import { DISTANCES } from './paces.js';
 import { addDays, fmtDateFr, fmtPace, fmtTime, isoWeekday, toISODate } from './format.js';
 import { h, renderPlan } from './render.js';
 import { CALENDAR_URL, deletePlanEvents, exportPlan, makeClient, planToEvents } from './intervals.js';
+import { FIT_MIME, ZIP_MIME, fitFileName, planToFitFiles, planZipName, sessionToFit } from './fit.js';
+import { saveFile } from './download.js';
+import { zipStore } from './zip.js';
 
 const $ = (sel) => document.querySelector(sel);
 const STORAGE_KEY = 'cph-settings-v1';
@@ -166,16 +169,55 @@ function generate() {
     plan = null;
     showFormError(e.message);
     $('#plan-card').hidden = true;
+    $('#fit-card').hidden = true;
     $('#export-card').hidden = true;
     return;
   }
   showFormError('');
   $('#plan-out').replaceChildren(renderPlan(plan));
   $('#plan-card').hidden = false;
+  $('#fit-card').hidden = false;
   $('#export-card').hidden = false;
   hideConfirm();
   setStatus('');
+  setFitStatus('');
   $('#plan-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---------------------------------------------------------------------------
+// Fichiers .fit
+// ---------------------------------------------------------------------------
+function setFitStatus(msg, cls = '') {
+  const el = $('#fit-status');
+  el.className = `status${cls ? ` ${cls}` : ''}`;
+  el.textContent = msg || '';
+  el.hidden = !msg;
+}
+
+function downloadFitZip() {
+  if (!plan) return;
+  try {
+    const files = planToFitFiles(plan);
+    saveFile(planZipName(plan), zipStore(files), ZIP_MIME);
+    setFitStatus(`✅ ${files.length} fichiers .fit téléchargés dans ${planZipName(plan)}.`, 'ok');
+  } catch (e) {
+    setFitStatus(`❌ ${e.message}`, 'err');
+  }
+}
+
+function downloadNextFit() {
+  if (!plan) return;
+  const next = plan.weeks.flatMap((wk) => wk.sessions)[0];
+  if (!next) {
+    setFitStatus('Aucune séance à venir dans ce programme.', 'err');
+    return;
+  }
+  try {
+    saveFile(fitFileName(next), sessionToFit(next, plan), FIT_MIME);
+    setFitStatus(`✅ ${fmtDateFr(next.date)} : ${next.workout.title} → ${fitFileName(next)}`, 'ok');
+  } catch (e) {
+    setFitStatus(`❌ ${e.message}`, 'err');
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -305,6 +347,9 @@ function init() {
     env.apiKey && env.athleteId
       ? 'Clé et identifiant chargés depuis le fichier .env ✓'
       : 'Renseigne INTERVALS_API_KEY et INTERVALS_ATHLETE_ID dans le fichier .env (Vite recharge la page tout seul), ou saisis les valeurs ici.';
+
+  $('#fit-zip-btn').addEventListener('click', downloadFitZip);
+  $('#fit-next-btn').addEventListener('click', downloadNextFit);
 
   $('#test-btn').addEventListener('click', testConnection);
   $('#export-btn').addEventListener('click', askExport);

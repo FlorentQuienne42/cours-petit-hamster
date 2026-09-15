@@ -21,7 +21,8 @@ const E = (p) => [p.easySlow, p.easyFast];
 const tgt = (pace, w = 10) => [roundTo(pace + w, 5), roundTo(pace - w, 5)];
 const mid = (range) => (range[0] + range[1]) / 2;
 
-const run = (cue, km, pace) => ({ cue, km, pace });
+// `intensity` ('warmup' | 'cooldown' | 'recovery') n'est utilisé que par l'export FIT.
+const run = (cue, km, pace, intensity) => ({ cue, km, pace, intensity });
 const runTime = (cue, sec, pace) => ({ cue, sec, pace });
 const rest = (cue, sec) => ({ cue, sec, rest: true });
 
@@ -55,8 +56,8 @@ function paceStr(pace, w = 10) {
   return `${fmtPace(roundTo(pace, 5))}/km (${fmtPace(slow)}-${fmtPace(fast)}/km)`;
 }
 
-const wu = (p, km) => ({ header: 'Échauffement', steps: [run('Échauffement', km, E(p))] });
-const cd = (p, km) => ({ header: 'Retour au calme', steps: [run('Retour au calme', km, E(p))] });
+const wu = (p, km) => ({ header: 'Échauffement', steps: [run('Échauffement', km, E(p), 'warmup')] });
+const cd = (p, km) => ({ header: 'Retour au calme', steps: [run('Retour au calme', km, E(p), 'cooldown')] });
 
 const easyLimit = (p) =>
   `à une allure conversationnelle (pas plus vite que ${fmtPace(p.easyFast)}/km. C'est une limite, pas un objectif : courez à une allure qui vous semble vraiment facile !)`;
@@ -204,7 +205,7 @@ export function progressiveRun(p) {
 }
 
 export function racePaceFartlek(p, pace, paceLabel) {
-  const steps = [run('Allure course', 1, tgt(pace, 5)), run('Récup trot', 0.5, E(p)), run('Allure course', 2, tgt(pace, 5))];
+  const steps = [run('Allure course', 1, tgt(pace, 5)), run('Récup trot', 0.5, E(p), 'recovery'), run('Allure course', 2, tgt(pace, 5))];
   const notes = `${wuText(p, 1)}, restez dans votre zone de confort\n\n1 km : ${fmtPace(roundTo(pace, 5))}/km, votre allure cible : ${paceLabel}\n\n500 m à une allure conversationnelle, gardez une allure très tranquille pour récupérer avant l'intervalle suivant\n\n2 km : ${fmtPace(roundTo(pace, 5))}/km\n\n500 m de retour au calme à une allure conversationnelle, ou plus lentement !`;
   return build({
     kind: 'tempo',

@@ -1,4 +1,6 @@
 // Rendu DOM du programme (sans framework).
+import { saveFile } from './download.js';
+import { FIT_MIME, fitFileName, sessionToFit } from './fit.js';
 import { fmtDateFr, fmtDuration, fmtKm, fmtPace, fmtTime } from './format.js';
 import { KIND_LABEL, toIntervalsText } from './workouts.js';
 
@@ -36,7 +38,7 @@ function paceChips(plan) {
   return chips;
 }
 
-function renderSession(s) {
+function renderSession(s, plan) {
   const w = s.workout;
   const meta = w.kind === 'race' ? `${fmtKm(w.km)} · objectif ${fmtTime(w.seconds)}` : `${fmtKm(w.km)} · ~${fmtDuration(w.seconds)}`;
   return h(
@@ -62,11 +64,22 @@ function renderSession(s) {
       w.blocks.length
         ? h('details', {}, h('summary', { text: 'Séance structurée (format intervals.icu)' }), h('pre', { text: toIntervalsText(w) }))
         : null,
+      h(
+        'div',
+        { class: 'session-actions' },
+        h('button', {
+          type: 'button',
+          class: 'mini',
+          text: '⌚ Fichier .fit',
+          title: 'Télécharger cette séance au format FIT (montre Garmin, Coros…)',
+          onClick: () => saveFile(fitFileName(s), sessionToFit(s, plan), FIT_MIME),
+        }),
+      ),
     ),
   );
 }
 
-function renderWeek(wk) {
+function renderWeek(wk, plan) {
   const range = `${fmtDateFr(wk.monday, { day: 'numeric', month: 'short' })} – ${fmtDateFr(wk.sunday, { day: 'numeric', month: 'short' })}`;
   return h(
     'article',
@@ -84,7 +97,7 @@ function renderWeek(wk) {
       ),
     ),
     wk.sessions.length
-      ? h('ul', { class: 'sessions' }, ...wk.sessions.map(renderSession))
+      ? h('ul', { class: 'sessions' }, ...wk.sessions.map((s) => renderSession(s, plan)))
       : h('p', { class: 'hint', style: 'padding: 0 1rem 0.9rem' }, 'Aucune séance : les jours choisis sont déjà passés.'),
   );
 }
@@ -107,6 +120,6 @@ export function renderPlan(plan) {
     ),
   );
   if (plan.warnings.length) frag.append(h('ul', { class: 'warnings' }, ...plan.warnings.map((w) => h('li', { text: w }))));
-  frag.append(h('div', { class: 'weeks' }, ...plan.weeks.map(renderWeek)));
+  frag.append(h('div', { class: 'weeks' }, ...plan.weeks.map((wk) => renderWeek(wk, plan))));
   return frag;
 }

@@ -16,7 +16,8 @@
       <p>
         Génère un programme de course à pied (10 km, semi, marathon) dans le style de tes plans préférés, puis
         exporte-le dans ton calendrier
-        <a href="https://intervals.icu" target="_blank" rel="noopener">intervals.icu</a>.
+        <a href="https://intervals.icu" target="_blank" rel="noopener">intervals.icu</a> ou en fichiers
+        <code>.fit</code> pour ta montre.
       </p>
     </header>
 
@@ -72,8 +73,33 @@
         <div id="plan-out"></div>
       </section>
 
+      <section class="card" id="fit-card" hidden>
+        <h2><span class="step">3</span> Fichiers .fit pour ta montre</h2>
+        <p class="hint">
+          Chaque séance peut aussi être téléchargée au format FIT, le format des séances structurées des montres
+          Garmin, Coros ou Suunto — pratique si tu ne synchronises pas ton calendrier. Le bouton
+          <b>⌚ Fichier .fit</b> sous chaque séance télécharge celle-ci ; le bouton ci-dessous les regroupe toutes
+          dans une archive ZIP.
+        </p>
+        <div class="actions">
+          <button type="button" class="primary" id="fit-zip-btn">Télécharger tout le programme (.zip)</button>
+          <button type="button" id="fit-next-btn">Télécharger la prochaine séance (.fit)</button>
+        </div>
+        <p id="fit-status" class="status" hidden></p>
+        <details class="how-to">
+          <summary>Comment mettre un fichier .fit sur la montre ?</summary>
+          <p class="hint">
+            <b>Garmin</b> : branche la montre en USB et copie les fichiers dans le dossier
+            <code>GARMIN/NewFiles</code>, puis débranche : les séances apparaissent dans <i>Entraînement</i> →
+            <i>Séances</i>. Sinon, importe les fichiers dans Garmin Connect (<i>Entraînement</i> → <i>Séances</i> →
+            <i>Importer</i>) ou dans intervals.icu, qui les enverra à la montre.<br />
+            <b>Coros / Suunto</b> : importe les fichiers depuis l'application ou le site du constructeur.
+          </p>
+        </details>
+      </section>
+
       <section class="card" id="export-card" hidden>
-        <h2><span class="step">3</span> Export vers intervals.icu</h2>
+        <h2><span class="step">4</span> Export vers intervals.icu</h2>
         <div class="grid">
           <label class="field">
             <span>Clé API <code>INTERVALS_API_KEY</code></span>
